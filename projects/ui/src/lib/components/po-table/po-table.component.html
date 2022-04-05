@@ -20,7 +20,7 @@
             <ng-container *ngTemplateOutlet="tableHeaderTemplate"></ng-container>
           </div>
           <div #poTableTbody class="po-table-container-fixed-inner" (scroll)="syncronizeHorizontalScroll()">
-            <ng-container *ngTemplateOutlet="tableBodyTemplate"></ng-container>
+            <ng-container *ngIf="height && virtualScroll; then tableVirtualTemplate; else tableTemplate" ></ng-container>
           </div>
         </div>
 
@@ -146,7 +146,8 @@
   </table>
 </ng-template>
 
-<ng-template #tableBodyTemplate>
+<ng-template #tableVirtualTemplate>
+  <cdk-virtual-scroll-viewport [itemSize]="20" style="height: {{ height }}px">
   <table class="po-table" [class.po-table-striped]="striped" [class.po-table-layout-fixed]="hideTextOverflow">
     <tbody class="po-table-group-row" *ngIf="!hasItems || !hasMainColumns">
       <tr class="po-table-row po-table-row-no-data">
@@ -157,7 +158,8 @@
     </tbody>
 
     <ng-container *ngIf="hasMainColumns">
-      <tbody class="po-table-group-row" *ngFor="let row of items; let rowIndex = index; trackBy: trackBy">
+      <!-- <tbody class="po-table-group-row" *ngFor="let row of items; let rowIndex = index; trackBy: trackBy"> -->
+        <tbody class="po-table-group-row" *cdkVirtualFor="let row of items; let rowIndex = index; trackBy: trackBy">
         <tr class="po-table-row" [class.po-table-row-active]="row.$selected || (row.$selected === null && selectable)">
           <td *ngIf="selectable" class="po-table-column-selectable">
             <ng-container *ngTemplateOutlet="singleSelect ? inputRadio : inputCheckbox; context: { $implicit: row }">
@@ -338,6 +340,7 @@
       </tbody>
     </ng-container>
   </table>
+</cdk-virtual-scroll-viewport>
 </ng-template>
 
 <ng-template #tableTemplate>
